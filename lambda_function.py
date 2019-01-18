@@ -33,7 +33,7 @@ def get_intent(request, session):
         return unknown_info()
 
 def get_class_count():
-    response = requests.get("https://5c0mrrrbfd.execute-api.eu-west-1.amazonaws.com/Beta/-info-?info=classesCount")
+    response = requests.get(create_url("classesCount"))
     obj = response.json()
 
     return create_response(
@@ -45,13 +45,13 @@ def get_class_count():
     )
 
 def get_classes_today():
-    response = requests.get("https://5c0mrrrbfd.execute-api.eu-west-1.amazonaws.com/Beta/-info-?info=todaysClasses")
+    response = requests.get(create_url("todaysClasses"))
     todaysClasses = response.json()
     speechText = ""
     cardText = ""
 
     for cl in todaysClasses:
-        speechText += "You have " + cl['module']['name'] + " at " + cl['times']['start'] + " until " + cl['times']['end'] + " with " + cl['lecturers'][0] + ". "
+        speechText += "You have " + cl['module']['name'] + " at " + cl['times']['start'] + " until " + cl['times']['end'] + ". "
         cardText += cl['module']['name'] + ": " + cl['times']['start'] + " - " + cl['times']['end'] + ". "
 
     return create_response(
@@ -106,3 +106,6 @@ def create_response(speech, cardTitle, cardText, reprompt, endSession):
             "shouldEndSession": endSession
         }
     }
+
+def create_url(info):
+    return "https://5c0mrrrbfd.execute-api.eu-west-1.amazonaws.com/Beta/-info-?info=" + info
