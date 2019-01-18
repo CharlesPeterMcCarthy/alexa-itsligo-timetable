@@ -1,4 +1,6 @@
+from botocore.vendored import requests
 import json
+import datetime
 
 def lambda_handler(event, context):
     if event["request"]["type"] == "LaunchRequest":
@@ -37,6 +39,8 @@ def get_intent(request, session):
 
     if intent_name == "TodaysTimetableIntent":
         return get_classes_today()
+    elif intent_name == "TodaysClassCount":
+        return get_class_count()
     elif intent_name == "AMAZON.HelpIntent":
         return get_help()
     elif intent_name == "AMAZON.CancelIntent" or intent_name == "AMAZON.StopIntent":
@@ -44,25 +48,55 @@ def get_intent(request, session):
     else:
         return unknown_info()
 
-def get_classes_today():
-    # TODO: Timetable API call
+def get_class_count():
+    response = requests.get("{{URL_CLASS_COUNT}}")
+    obj = response.json()
+
     return {
         "version": "1.0",
         "sessionAttributes": {},
         "response": {
             "outputSpeech": {
                 "type": "PlainText",
-                "text": "Class Info" # Filler text
+                "text": "You have " + str(obj['count']) + " classes today."
             },
             "card": {
                 "type": "Simple",
-                "title": "Classes Today",
-                "content": "Class Info" # Filler text
+                "title": "Class Count Today",
+                "content": "You have " + str(obj['count']) + " classes today."
             },
             "reprompt": {
                 "outputSpeech": {
                     "type": "PlainText",
-                    "text": "Class Info" # Filler text
+                    "text": "You have " + str(obj['count']) + " classes today."
+                }
+            },
+            "shouldEndSession": True
+        }
+    }
+
+def get_classes_today():
+    response = requests.get("{{URL_CLASSES_TODAY}}")
+    obj = response.json()
+
+    todaysClass = obj[0]
+    return {
+        "version": "1.0",
+        "sessionAttributes": {},
+        "response": {
+            "outputSpeech": {
+                "type": "PlainText",    # Just test data - To be updated
+                "text": "On " + todaysClass['day'] + " - You have " + todaysClass['classes'][0]['module']['name'] + " at " + todaysClass['classes'][0]['times']['start'] + " until " + todaysClass['classes'][0]['times']['end'] + " with " + todaysClass['classes'][0]['lecturers'][0]
+            },
+            "card": {
+                "type": "Simple",
+                "title": "Your Classes Today",
+                "content": "On " + todaysClass['day'] + " - You have " + todaysClass['classes'][0]['module']['name'] + " at " + todaysClass['classes'][0]['times']['start'] + " until " + todaysClass['classes'][0]['times']['end'] + " with " + todaysClass['classes'][0]['lecturers'][0]
+            },
+            "reprompt": {
+                "outputSpeech": {
+                    "type": "PlainText",
+                    "text": "On " + todaysClass['day'] + " - You have " + todaysClass['classes'][0]['module']['name'] + " at " + todaysClass['classes'][0]['times']['start'] + " until " + todaysClass['classes'][0]['times']['end'] + " with " + todaysClass['classes'][0]['lecturers'][0]
                 }
             },
             "shouldEndSession": True
