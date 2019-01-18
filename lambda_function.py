@@ -11,28 +11,13 @@ def lambda_handler(event, context):
         return end_session()
 
 def get_started():
-    return {
-        "version": "1.0",
-        "sessionAttributes": {},
-        "response": {
-            "outputSpeech": {
-                "type": "PlainText",
-                "text": "Ok, what do you want to know?"
-            },
-            "card": {
-                "type": "Simple",
-                "title": "College Timetable",
-                "content": "Ok, what do you want to know?"
-            },
-            "reprompt": {
-                "outputSpeech": {
-                    "type": "PlainText",
-                    "text": "What information do you want to know about your timetable?"
-                }
-            },
-            "shouldEndSession": False
-        }
-    }
+    return create_response(
+        "Ok, what do you want to know?",
+        "College Timetable",
+        "Ok, what do you want to know?",
+        "What information do you want to know about your timetable?",
+        False
+    )
 
 def get_intent(request, session):
     intent_name = request["intent"]["name"]
@@ -49,128 +34,72 @@ def get_intent(request, session):
         return unknown_info()
 
 def get_class_count():
-    response = requests.get("{{URL_CLASS_COUNT}}")
+    response = requests.get("https://5c0mrrrbfd.execute-api.eu-west-1.amazonaws.com/Beta/-info-?info=classesCount")
     obj = response.json()
 
-    return {
-        "version": "1.0",
-        "sessionAttributes": {},
-        "response": {
-            "outputSpeech": {
-                "type": "PlainText",
-                "text": "You have " + str(obj['count']) + " classes today."
-            },
-            "card": {
-                "type": "Simple",
-                "title": "Class Count Today",
-                "content": "You have " + str(obj['count']) + " classes today."
-            },
-            "reprompt": {
-                "outputSpeech": {
-                    "type": "PlainText",
-                    "text": "You have " + str(obj['count']) + " classes today."
-                }
-            },
-            "shouldEndSession": True
-        }
-    }
+    return create_response(
+        "You have " + str(obj['count']) + " classes today.",
+        "Class Count Today",
+        "You have " + str(obj['count']) + " classes today.",
+        "You have " + str(obj['count']) + " classes today.",
+        True
+    )
 
 def get_classes_today():
-    response = requests.get("{{URL_CLASSES_TODAY}}")
+    response = requests.get("https://5c0mrrrbfd.execute-api.eu-west-1.amazonaws.com/Beta")
     obj = response.json()
 
     todaysClass = obj[0]
-    return {
-        "version": "1.0",
-        "sessionAttributes": {},
-        "response": {
-            "outputSpeech": {
-                "type": "PlainText",    # Just test data - To be updated
-                "text": "On " + todaysClass['day'] + " - You have " + todaysClass['classes'][0]['module']['name'] + " at " + todaysClass['classes'][0]['times']['start'] + " until " + todaysClass['classes'][0]['times']['end'] + " with " + todaysClass['classes'][0]['lecturers'][0]
-            },
-            "card": {
-                "type": "Simple",
-                "title": "Your Classes Today",
-                "content": "On " + todaysClass['day'] + " - You have " + todaysClass['classes'][0]['module']['name'] + " at " + todaysClass['classes'][0]['times']['start'] + " until " + todaysClass['classes'][0]['times']['end'] + " with " + todaysClass['classes'][0]['lecturers'][0]
-            },
-            "reprompt": {
-                "outputSpeech": {
-                    "type": "PlainText",
-                    "text": "On " + todaysClass['day'] + " - You have " + todaysClass['classes'][0]['module']['name'] + " at " + todaysClass['classes'][0]['times']['start'] + " until " + todaysClass['classes'][0]['times']['end'] + " with " + todaysClass['classes'][0]['lecturers'][0]
-                }
-            },
-            "shouldEndSession": True
-        }
-    }
+
+    return create_response( # Test data - To be updated
+        "On " + todaysClass['day'] + " - You have " + todaysClass['classes'][0]['module']['name'] + " at " + todaysClass['classes'][0]['times']['start'] + " until " + todaysClass['classes'][0]['times']['end'] + " with " + todaysClass['classes'][0]['lecturers'][0],
+        "Your Classes Today",
+        "On " + todaysClass['day'] + " - You have " + todaysClass['classes'][0]['module']['name'] + " at " + todaysClass['classes'][0]['times']['start'] + " until " + todaysClass['classes'][0]['times']['end'] + " with " + todaysClass['classes'][0]['lecturers'][0],
+        "On " + todaysClass['day'] + " - You have " + todaysClass['classes'][0]['module']['name'] + " at " + todaysClass['classes'][0]['times']['start'] + " until " + todaysClass['classes'][0]['times']['end'] + " with " + todaysClass['classes'][0]['lecturers'][0],
+        True
+    )
 
 def get_help():
-    return {
-        "version": "1.0",
-        "sessionAttributes": {},
-        "response": {
-            "outputSpeech": {
-                "type": "PlainText",
-                "text": "At the moment you can only choose to hear your classes for today. Try asking for todays timetable."
-            },
-            "card": {
-                "type": "Simple",
-                "title": "Help",
-                "content": "At the moment you can only choose to hear your classes for today. Try asking for 'todays timetable'."
-            },
-            "reprompt": {
-                "outputSpeech": {
-                    "type": "PlainText",
-                    "text": "What information do you want to know about your timetable?"
-                }
-            },
-            "shouldEndSession": False
-        }
-    }
+    return create_response(
+        "Try asking for todays timetable or how many classes you have today.",
+        "Help",
+        "Try asking for 'todays timetable' or 'how many classes do I have today'",
+        "What information do you want to know about your timetable?",
+        False
+    )
 
 def unknown_info():
-    return {
-        "version": "1.0",
-        "sessionAttributes": {},
-        "response": {
-            "outputSpeech": {
-                "type": "PlainText",
-                "text": "Sorry, I don't know what you are looking for. Ask for help if needed."
-            },
-            "card": {
-                "type": "Simple",
-                "title": "Invalid Response",
-                "content": "Sorry, I don't know what you are looking for. Ask for help if needed."
-            },
-            "reprompt": {
-                "outputSpeech": {
-                    "type": "PlainText",
-                    "text": "Ask for help if needed."
-                }
-            },
-            "shouldEndSession": False
-        }
-    }
+    return create_response(
+        "Sorry, I don't know what you are looking for. Ask for help if needed.",
+        "Invalid Response",
+        "Sorry, I don't know what you are looking for. Ask for help if needed.",
+        "Ask for help if needed.",
+        False
+    )
 
 def end_session():
+    return create_response("Ok. Goodbye.", "Goodbye", "Ok. Goodbye.", "Goodbye.", True)
+
+def create_response(speech, cardTitle, cardText, reprompt, endSession):
     return {
         "version": "1.0",
         "sessionAttributes": {},
         "response": {
             "outputSpeech": {
                 "type": "PlainText",
-                "text": "Ok. Goodbye."
+                "text": speech
             },
             "card": {
                 "type": "Simple",
-                "title": "Goodbye",
-                "content": "Ok, Goodbye."
+                "title": cardTitle,
+                "content": cardText
             },
             "reprompt": {
                 "outputSpeech": {
                     "type": "PlainText",
-                    "text": "Goodbye."
+                    "text": reprompt
                 }
             },
-            "shouldEndSession": True
+            "shouldEndSession": endSession
         }
     }
