@@ -1,6 +1,5 @@
 from botocore.vendored import requests
 import json
-import datetime
 
 def lambda_handler(event, context):
     if event["request"]["type"] == "LaunchRequest":
@@ -46,16 +45,20 @@ def get_class_count():
     )
 
 def get_classes_today():
-    response = requests.get("https://5c0mrrrbfd.execute-api.eu-west-1.amazonaws.com/Beta")
-    obj = response.json()
+    response = requests.get("https://5c0mrrrbfd.execute-api.eu-west-1.amazonaws.com/Beta/-info-?info=todaysClasses")
+    todaysClasses = response.json()
+    speechText = ""
+    cardText = ""
 
-    todaysClass = obj[0]
+    for cl in todaysClasses:
+        speechText += "You have " + cl['module']['name'] + " at " + cl['times']['start'] + " until " + cl['times']['end'] + " with " + cl['lecturers'][0] + ". "
+        cardText += cl['module']['name'] + ": " + cl['times']['start'] + " - " + cl['times']['end'] + ". "
 
-    return create_response( # Test data - To be updated
-        "On " + todaysClass['day'] + " - You have " + todaysClass['classes'][0]['module']['name'] + " at " + todaysClass['classes'][0]['times']['start'] + " until " + todaysClass['classes'][0]['times']['end'] + " with " + todaysClass['classes'][0]['lecturers'][0],
+    return create_response(
+        speechText,
         "Your Classes Today",
-        "On " + todaysClass['day'] + " - You have " + todaysClass['classes'][0]['module']['name'] + " at " + todaysClass['classes'][0]['times']['start'] + " until " + todaysClass['classes'][0]['times']['end'] + " with " + todaysClass['classes'][0]['lecturers'][0],
-        "On " + todaysClass['day'] + " - You have " + todaysClass['classes'][0]['module']['name'] + " at " + todaysClass['classes'][0]['times']['start'] + " until " + todaysClass['classes'][0]['times']['end'] + " with " + todaysClass['classes'][0]['lecturers'][0],
+        cardText,
+        speechText,
         True
     )
 
