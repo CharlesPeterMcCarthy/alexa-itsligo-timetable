@@ -24,6 +24,8 @@ def get_intent(request, session):
 
     if intent_name == "TodaysTimetableIntent":
         return get_classes_today()
+    elif intent_name == "TomorrowTimetableIntent":
+        return get_classes_tomorrow()
     elif intent_name == "TodaysClassCountIntent":
         return get_class_count()
     elif intent_name == "DayTimetableIntent":
@@ -60,6 +62,24 @@ def get_classes_today():
     return create_response(
         speechText,
         "Your Classes Today",
+        cardText,
+        speechText,
+        True
+    )
+
+def get_classes_tomorrow():
+    response = requests.get(create_url("tomorrowClasses"))
+    tomorrowClasses = response.json()
+    speechText = ""
+    cardText = ""
+
+    for cl in tomorrowClasses:
+        speechText += "You have " + cl['module']['name'] + " at " + cl['times']['start'] + " until " + cl['times']['end'] + ". "
+        cardText += cl['module']['name'] + ": " + cl['times']['start'] + " - " + cl['times']['end'] + ". "
+
+    return create_response(
+        speechText,
+        "Your Classes Tomorrow",
         cardText,
         speechText,
         True
