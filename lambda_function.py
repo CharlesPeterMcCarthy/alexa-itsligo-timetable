@@ -18,13 +18,16 @@ def get_started():
         False
     )
 
+
 def get_intent(request, session):
     intent_name = request["intent"]["name"]
 
     if intent_name == "TodaysTimetableIntent":
         return get_classes_today()
-    elif intent_name == "TodaysClassCount":
+    elif intent_name == "TodaysClassCountIntent":
         return get_class_count()
+    elif intent_name == "DayTimetableIntent":
+        return get_day_classes(request['intent']['slots']['day']['value'])
     elif intent_name == "AMAZON.HelpIntent":
         return get_help()
     elif intent_name == "AMAZON.CancelIntent" or intent_name == "AMAZON.StopIntent":
@@ -57,6 +60,25 @@ def get_classes_today():
     return create_response(
         speechText,
         "Your Classes Today",
+        cardText,
+        speechText,
+        True
+    )
+
+def get_day_classes(day):
+    response = requests.get("https://5c0mrrrbfd.execute-api.eu-west-1.amazonaws.com/Beta")
+    days = response.json()
+    todaysClasses = days[get_day_number(day)]['classes']
+    speechText = ""
+    cardText = ""
+
+    for cl in todaysClasses:
+        speechText += "You have " + cl['module']['name'] + " at " + cl['times']['start'] + " until " + cl['times']['end'] + ". "
+        cardText += cl['module']['name'] + ": " + cl['times']['start'] + " - " + cl['times']['end'] + ". "
+
+    return create_response(
+        speechText,
+        "Your Classes on " + day,
         cardText,
         speechText,
         True
@@ -109,3 +131,15 @@ def create_response(speech, cardTitle, cardText, reprompt, endSession):
 
 def create_url(info):
     return "https://5c0mrrrbfd.execute-api.eu-west-1.amazonaws.com/Beta/-info-?info=" + info
+
+def get_day_number(day):
+    day = day.lower()
+    return {
+        'monday' : 0,
+        'tuesday' : 1,
+        'wednesday' : 2,
+        'thursday' : 3,
+        'friday' : 4,
+        'saturday' : 5,
+        'sunday' : 6
+    }.get(day, -1)
