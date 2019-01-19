@@ -55,9 +55,13 @@ def get_classes_today():
     speechText = ""
     cardText = ""
 
-    for cl in todaysClasses:
-        speechText += "You have " + cl['module']['name'] + " at " + cl['times']['start'] + " until " + cl['times']['end'] + ". "
-        cardText += cl['module']['name'] + ": " + cl['times']['start'] + " - " + cl['times']['end'] + ". "
+    if todaysClasses:
+        for cl in todaysClasses:
+            speechText += "You have " + cl['module']['name'] + " at " + cl['times']['start'] + " until " + cl['times']['end'] + ". "
+            cardText += cl['module']['name'] + ": " + cl['times']['start'] + " - " + cl['times']['end'] + ". "
+    else:
+        speechText = "You have no classes today."
+        cardText = "You have no classes today."
 
     return create_response(
         speechText,
@@ -73,9 +77,13 @@ def get_classes_tomorrow():
     speechText = ""
     cardText = ""
 
-    for cl in tomorrowClasses:
-        speechText += "You have " + cl['module']['name'] + " at " + cl['times']['start'] + " until " + cl['times']['end'] + ". "
-        cardText += cl['module']['name'] + ": " + cl['times']['start'] + " - " + cl['times']['end'] + ". "
+    if tomorrowClasses:
+        for cl in tomorrowClasses:
+            speechText += "You have " + cl['module']['name'] + " at " + cl['times']['start'] + " until " + cl['times']['end'] + ". "
+            cardText += cl['module']['name'] + ": " + cl['times']['start'] + " - " + cl['times']['end'] + ". "
+    else:
+        speechText = "You have no classes tomorrow."
+        cardText = "You have no classes tomorrow."
 
     return create_response(
         speechText,
@@ -88,13 +96,17 @@ def get_classes_tomorrow():
 def get_day_classes(day):
     response = requests.get("https://5c0mrrrbfd.execute-api.eu-west-1.amazonaws.com/Beta")
     days = response.json()
-    todaysClasses = days[get_day_number(day)]['classes']
+    dayClasses = days[get_day_number(day)]['classes']
     speechText = ""
     cardText = ""
 
-    for cl in todaysClasses:
-        speechText += "You have " + cl['module']['name'] + " at " + cl['times']['start'] + " until " + cl['times']['end'] + ". "
-        cardText += cl['module']['name'] + ": " + cl['times']['start'] + " - " + cl['times']['end'] + ". "
+    if dayClasses:
+        for cl in dayClasses:
+            speechText += "You have " + cl['module']['name'] + " at " + cl['times']['start'] + " until " + cl['times']['end'] + ". "
+            cardText += cl['module']['name'] + ": " + cl['times']['start'] + " - " + cl['times']['end'] + ". "
+    else:
+        speechText = "You have no classes on " + day + "."
+        cardText = "You have no classes on " + day + "."
 
     return create_response(
         speechText,
