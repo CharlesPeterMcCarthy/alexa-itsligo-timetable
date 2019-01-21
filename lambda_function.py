@@ -30,6 +30,8 @@ def get_intent(request, session):
         return get_class_count()
     elif intent_name == "DayTimetableIntent":
         return get_day_classes(request['intent']['slots']['day']['value'])
+    elif intent_name == "NextClassIntent":
+        return get_next_class()
     elif intent_name == "AMAZON.HelpIntent":
         return get_help()
     elif intent_name == "AMAZON.CancelIntent" or intent_name == "AMAZON.StopIntent":
@@ -111,6 +113,21 @@ def get_day_classes(day):
     return create_response(
         speechText,
         "Your Classes on " + day,
+        cardText,
+        speechText,
+        True
+    )
+
+def get_next_class():
+    response = requests.get(create_url("nextClass"))
+    nextClass = response.json()
+
+    speechText = "You have " + nextClass['module']['name'] + " at " + nextClass['times']['start'] + " until " + nextClass['times']['end'] + ". "
+    cardText = nextClass['module']['name'] + ": " + nextClass['times']['start'] + " - " + nextClass['times']['end'] + ". "
+
+    return create_response(
+        speechText,
+        "Your Next Class",
         cardText,
         speechText,
         True
