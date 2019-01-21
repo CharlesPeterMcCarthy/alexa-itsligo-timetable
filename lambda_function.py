@@ -121,9 +121,9 @@ def get_day_classes(day):
 def get_next_class():
     response = requests.get(create_url("nextClass"))
     nextClass = response.json()
-
-    speechText = "You have " + nextClass['module']['name'] + " at " + nextClass['times']['start'] + " until " + nextClass['times']['end'] + ". "
-    cardText = nextClass['module']['name'] + ": " + nextClass['times']['start'] + " - " + nextClass['times']['end'] + ". "
+    cl = nextClass['class']
+    speechText = "Your next class is " + cl['module']['name'] + (" on " + nextClass['day'] if not nextClass['isToday'] else " today") + " at " + cl['times']['start'] + " until " + cl['times']['end']
+    cardText = (nextClass['day'] if not nextClass['isToday'] else "Today") + "- " + cl['module']['name'] + ": " + cl['times']['start'] + " - " + cl['times']['end']
 
     return create_response(
         speechText,
