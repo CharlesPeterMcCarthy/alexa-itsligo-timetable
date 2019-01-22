@@ -18,7 +18,6 @@ def get_started():
         False
     )
 
-
 def get_intent(request, session):
     intent_name = request["intent"]["name"]
 
@@ -124,6 +123,9 @@ def get_next_class():
     cl = nextClass['class']
     speechText = "Your next class is " + cl['module']['name'] + (" on " + nextClass['day'] if not nextClass['isToday'] else " today") + " at " + cl['times']['start'] + " until " + cl['times']['end']
     cardText = (nextClass['day'] if not nextClass['isToday'] else "Today") + "- " + cl['module']['name'] + ": " + cl['times']['start'] + " - " + cl['times']['end']
+
+    if nextClass['isToday'] and nextClass['startsIn']:
+        speechText += ". This class starts in " + (str(nextClass['startsIn']['hours']) + " hours " if nextClass['startsIn']['hours'] > 0 else "") + str(nextClass['startsIn']['minutes']) + " minutes."
 
     return create_response(
         speechText,
