@@ -27,6 +27,8 @@ def get_intent(request, session):
         return get_classes_tomorrow()
     elif intent_name == "TodaysClassCountIntent":
         return get_class_count()
+    elif intent_name == "TodaysBreaksIntent":
+        return get_breaks_today()
     elif intent_name == "DayTimetableIntent":
         return get_day_classes(request['intent']['slots']['day']['value'])
     elif intent_name == "NextClassIntent":
@@ -47,6 +49,28 @@ def get_class_count():
         "Class Count Today",
         "You have " + str(obj['count']) + " classes today.",
         "You have " + str(obj['count']) + " classes today.",
+        True
+    )
+
+def get_breaks_today():
+    response = requests.get(create_url("breaksToday"))
+    breaks = response.json()
+    speechText = ""
+    cardText = ""
+
+    if breaks:
+        for br in breaks:
+            speechText += "You have a break for " + br['length'] + ", starting at " + br['times']['start'] + " until " + br['times']['end'] + ". "
+            cardText += br['length'] + ": " + br['times']['start'] + " - " + br['times']['end'] + ". "
+    else:
+        speechText = "You have no breaks today."
+        cardText = "You have no breaks today."
+
+    return create_response(
+        speechText,
+        "Your Breaks Today",
+        cardText,
+        speechText,
         True
     )
 
