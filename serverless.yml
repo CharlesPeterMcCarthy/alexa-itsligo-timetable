@@ -1,0 +1,17 @@
+service: alexa-college-timetable
+
+provider:
+  name: aws
+  runtime: python3.7
+  region: eu-west-1
+  stage: dev
+  tags:
+    project: alexa-timetable
+
+functions:
+  timetable:
+    handler: alexa-skill.Handler
+    events:
+      - alexaSkill:
+          appId: amzn1.ask.skill.cf758082-88ca-422d-b723-76146fc97122
+          enabled: true

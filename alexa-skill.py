@@ -1,7 +1,7 @@
 from botocore.vendored import requests
 import json
 
-def lambda_handler(event, context):
+def Handler(event, context):
     if event["request"]["type"] == "LaunchRequest":
         return get_started()
     elif event["request"]["type"] == "IntentRequest":
